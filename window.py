@@ -89,13 +89,13 @@ class GomokuWindow(QMainWindow):
 
     def restart(self, res):
         if res == 1:
-            QMessageBox.about(self, 'END', 'player1-win')
+            QMessageBox.about(self, 'END', 'Player1-Win')
         elif res == 2:
-            QMessageBox.about(self, 'END', 'player2-win')
+            QMessageBox.about(self, 'END', 'Player2-Win')
         elif res == 3:
-            QMessageBox.about(self, 'END', 'draw')
+            QMessageBox.about(self, 'END', 'Draw')
         else:
-            raise ValueError('Wrong value of res')
+            raise ValueError('Wrong value of res:' + res)
         self.res = 0
         self.game = Gomoku()
         self.repaint(0, 0, 650, 650)
