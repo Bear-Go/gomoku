@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QMainWindow
-from PyQt5.QtGui import QPalette, QBrush, QPixmap, QPainter, QPen, QColor, QRadialGradient
+from PyQt5.QtWidgets import QMainWindow, QMessageBox
+from PyQt5.QtGui import QPalette, QBrush, QPixmap, QPainter, QPen, QColor, QRadialGradient, QIcon
 from PyQt5.QtCore import Qt, QPoint
 from game import Gomoku
 
@@ -10,17 +10,15 @@ class GomokuWindow(QMainWindow):
         super().__init__()
         self.init_ui()
         self.game = Gomoku()
-
-        self.last_pos = (-1, -1)
         self.res = 0
-        self.status = 0
 
     def init_ui(self):
         self.setObjectName('MainWindow')
         self.setWindowTitle('Gomoku')
+        self.setWindowIcon(QIcon('image/G.ico'))
         self.setFixedSize(650, 650)
         palette = QPalette()
-        palette.setBrush(QPalette.Window, QBrush(QPixmap('image/wood.png')))
+        palette.setBrush(QPalette.Window, QBrush(QPixmap('image/wood.jpg')))
         self.setPalette(palette)
         self.show()
 
@@ -64,3 +62,40 @@ class GomokuWindow(QMainWindow):
             qp.begin(self)
             draw_board()
             draw_pieces()
+
+    def mousePressEvent(self, e):
+        if e.button() == Qt.LeftButton:
+            mouse_x = e.windowPos().x()
+            mouse_y = e.windowPos().y()
+            if (mouse_x % 40 <= 15 or mouse_x % 40 >= 25) and (mouse_y % 40 <= 15 or mouse_y % 40 >= 25):
+                game_x = int((mouse_x + 15) // 40) - 1
+                game_y = int((mouse_y + 15) // 40) - 1
+            else:
+                return
+            self.game.player1(True, game_x, game_y)
+
+        res = self.game.check()
+        if res != 0:
+            self.repaint(0, 0, 650, 650)
+            self.restart(res)
+            return
+        self.game.player2()
+        res = self.game.check()
+        if res != 0:
+            self.repaint(0, 0, 650, 650)
+            self.restart(res)
+            return
+        self.repaint(0, 0, 650, 650)
+
+    def restart(self, res):
+        if res == 1:
+            QMessageBox.about(self, 'END', 'player1-win')
+        elif res == 2:
+            QMessageBox.about(self, 'END', 'player2-win')
+        elif res == 3:
+            QMessageBox.about(self, 'END', 'draw')
+        else:
+            raise ValueError('Wrong value of res')
+        self.res = 0
+        self.game = Gomoku()
+        self.repaint(0, 0, 650, 650)
